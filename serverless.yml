@@ -66,6 +66,10 @@ functions:
       - websocket:
           route: broadcast
 
+custom:
+  serverless-offline:
+    httpPort: 8080
+
 resources:
   Resources:
     TextTable:
