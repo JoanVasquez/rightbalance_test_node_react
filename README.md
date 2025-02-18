@@ -1,7 +1,3 @@
-# Text Sharing Service
-
-This project is a Serverless Node.js application built with TypeScript. It uses AWS Lambda, API Gateway, and DynamoDB. For local development, it uses Serverless Offline and Docker for DynamoDB Local.
-
 > **Note:** This project uses dummy AWS credentials for local testing. In production, be sure to use valid AWS credentials.
 
 ---
