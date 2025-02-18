@@ -31,3 +31,4 @@ docker/dynamodb/
 # OS-specific files
 .DS_Store
 Thumbs.db
+.build/
