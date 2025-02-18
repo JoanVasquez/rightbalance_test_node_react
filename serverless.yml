@@ -1,0 +1,81 @@
+service: text-sharing-service
+
+package:
+  individually: true
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-api-gateway-caching
+  - serverless-offline
+  - serverless-dotenv-plugin
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  environment:
+    DYNAMODB_TABLE_NAME: ${env:DYNAMODB_TABLE_NAME, 'TextTable-dev'}
+    DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, 'http://localhost:8000'}
+  iamRoleStatements:
+    - ${file(resources/Policies.yml):DynamoDBPolicies}
+
+functions:
+  createText:
+    handler: src/functions/createText.handler
+    events:
+      - http:
+          path: /text
+          method: POST
+
+  findText:
+    handler: src/functions/findText.handler
+    events:
+      - http:
+          path: /text
+          method: GET
+
+  findTextById:
+    handler: src/functions/findTextById.handler
+    events:
+      - http:
+          path: /text/{id}
+          method: GET
+
+  updateText:
+    handler: src/functions/updateText.handler
+    events:
+      - http:
+          path: /text/{id}
+          method: PUT
+
+  setCollabState:
+    handler: src/functions/setCollabState.handler
+    events:
+      - http:
+          path: /text/{id}/collab
+          method: PATCH
+
+  broadcastUpdates:
+    handler: src/functions/broadcastUpdates.handler
+    events:
+      - websocket:
+          route: $connect
+      - websocket:
+          route: $disconnect
+      - websocket:
+          route: broadcast
+
+resources:
+  Resources:
+    TextTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: textTable-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
